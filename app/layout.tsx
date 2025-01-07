@@ -21,6 +21,9 @@ export default function RootLayout({
   return (
     <html lang="zh">
       <head>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+        <title>微信春联头像</title>
+        <meta name="description" content="贴春联，换新颜，让头像有年味" />
         <meta name="theme-color" content="#EF4444" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>

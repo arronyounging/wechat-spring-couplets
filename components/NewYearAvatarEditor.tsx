@@ -24,6 +24,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 
+declare global {
+  interface Window {
+    wx: any;
+  }
+}
+
 const NewYearAvatarEditor = () => {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -38,7 +44,7 @@ const NewYearAvatarEditor = () => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 100,
-    height: 100,
+    aspect: 1,
     x: 0,
     y: 0
   });
@@ -47,6 +53,32 @@ const NewYearAvatarEditor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+
+  const isInMiniProgram = () => {
+    return window.wx && window.wx.miniProgram;
+  };
+
+  const handleImageGenerated = (imageUrl: string) => {
+    if (isInMiniProgram()) {
+      window.wx.miniProgram.postMessage({
+        data: {
+          type: 'imageGenerated',
+          imageUrl
+        }
+      });
+    }
+  };
+
+  const handleAvatarUploaded = (avatarUrl: string) => {
+    if (isInMiniProgram()) {
+      window.wx.miniProgram.postMessage({
+        data: {
+          type: 'avatarUploaded',
+          avatarUrl
+        }
+      });
+    }
+  };
 
   // 春联分类
   const coupletCategories = [
@@ -153,6 +185,7 @@ const NewYearAvatarEditor = () => {
           if (naturalWidth === naturalHeight) {
             // 如果是正方形图片，直接使用
             setAvatar(dataUrl);
+            handleAvatarUploaded(dataUrl);
             if (selectedCouplet) {
               compositeImages(dataUrl, selectedCouplet);
             }
@@ -168,7 +201,8 @@ const NewYearAvatarEditor = () => {
               x: (x / naturalWidth) * 100,
               y: (y / naturalHeight) * 100,
               width: (size / naturalWidth) * 100,
-              height: (size / naturalHeight) * 100
+              height: (size / naturalHeight) * 100,
+              aspect: 1
             });
             setShowCropModal(true);
           }
@@ -298,6 +332,7 @@ const NewYearAvatarEditor = () => {
     // 获取裁剪后的图片
     const croppedImage = canvas.toDataURL('image/png', 1.0);
     setAvatar(croppedImage);
+    handleAvatarUploaded(croppedImage);
     setShowCropModal(false);
     
     // 如果已选择春联，立即合成
@@ -453,6 +488,7 @@ const NewYearAvatarEditor = () => {
       });
 
       setCompositeImage(canvas.toDataURL('image/png'));
+      handleImageGenerated(canvas.toDataURL('image/png'));
       setIsLoading(false);
     };
     img.src = avatarSrc;
@@ -498,12 +534,25 @@ const NewYearAvatarEditor = () => {
   }, [avatar, selectedCouplet]);
 
   // 下载图片
-  const handleDownload = () => {
-    if (compositeImage) {
+  const handleDownload = async () => {
+    if (!compositeImage) return;
+    
+    if (isInMiniProgram()) {
+      // 在小程序中，发送图片数据给小程序
+      window.wx.miniProgram.postMessage({
+        data: {
+          type: 'downloadImage',
+          imageUrl: compositeImage
+        }
+      });
+    } else {
+      // 在普通浏览器中，直接下载
       const link = document.createElement('a');
-      link.download = '新年头像.png';
       link.href = compositeImage;
+      link.download = '春联头像.png';
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -654,12 +703,12 @@ const NewYearAvatarEditor = () => {
                         <ReactCrop
                           crop={crop}
                           onChange={handleCropChange}
+                          aspect={1}
                           className="max-w-full max-h-full"
                           style={{
                             maxWidth: '100%',
                             maxHeight: '100%',
-                            aspectRatio: '1',
-                            objectFit: 'contain'
+                            margin: '0 auto'
                           }}
                         >
                           <img
@@ -773,56 +822,59 @@ const NewYearAvatarEditor = () => {
                     </div>
 
                     {/* 春联列表 */}
-                    <div className="relative">
-                      <div className="grid grid-cols-5 gap-2 max-h-[225px] overflow-y-auto pr-2 hide-scrollbar">
-                        {Object.entries(sampleCouplets).map(([key, couplets]) => (
-                          <div key={key} 
-                            className={`transition-all duration-200 
-                              ${selectedCategory === key ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 hidden'}`}
-                          >
-                            <div className="h-[225px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
-                              <div className="space-y-1.5 px-0.5">
-                                {couplets.map((couplet, index) => {
-                                  const lines = couplet.split('，');
-                                  return (
-                                    <button
-                                      key={index}
-                                      onClick={() => handleCoupletSelect(couplet)}
-                                      className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
-                                        ${selectedCouplet === couplet
-                                          ? 'bg-red-50 text-red-600 ring-1 ring-red-500'
-                                          : 'hover:bg-gray-50/80'
-                                        }`}
-                                    >
-                                      <div className="flex items-center justify-center gap-10">
-                                        {lines.map((line, i) => (
-                                          <p
-                                            key={i}
-                                            className={`text-sm transition-colors duration-200
-                                              ${selectedCouplet === couplet 
-                                                ? 'text-red-600 font-medium' 
-                                                : 'text-gray-500 group-hover:text-gray-800'
-                                              }`}
-                                          >
-                                            {line}
-                                          </p>
-                                        ))}
-                                      </div>
+                    <div className="relative mt-1">
+                      <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none
+                        [.no-overflow_&]:hidden" />
+                      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none
+                        [.no-overflow_&]:hidden" />
+                      
+                      {Object.entries(sampleCouplets).map(([key, couplets]) => (
+                        <div key={key} 
+                          className={`transition-all duration-200 
+                            ${selectedCategory === key ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 hidden'}`}
+                        >
+                          <div className="h-[225px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
+                            <div className="space-y-1.5 px-0.5">
+                              {couplets.map((couplet, index) => {
+                                const lines = couplet.split('，');
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() => handleCoupletSelect(couplet)}
+                                    className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
+                                      ${selectedCouplet === couplet
+                                        ? 'bg-red-50 ring-1 ring-red-500'
+                                        : 'hover:bg-gray-50/80'
+                                      }`}
+                                  >
+                                    <div className="flex items-center justify-center gap-10">
+                                      {lines.map((line, i) => (
+                                        <p
+                                          key={i}
+                                          className={`text-sm transition-colors duration-200
+                                            ${selectedCouplet === couplet 
+                                              ? 'text-red-600 font-medium' 
+                                              : 'text-gray-500 group-hover:text-gray-800'
+                                            }`}
+                                        >
+                                          {line}
+                                        </p>
+                                      ))}
+                                    </div>
 
-                                      {/* 选中标记 */}
-                                      {selectedCouplet === couplet && (
-                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-transform duration-200">
-                                          <Check className="w-3.5 h-3.5 text-red-500" />
-                                        </div>
-                                      )}
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                                    {/* 选中标记 */}
+                                    {selectedCouplet === couplet && (
+                                      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-transform duration-200">
+                                        <Check className="w-3.5 h-3.5 text-red-500" />
+                                      </div>
+                                    )}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -879,7 +931,7 @@ const NewYearAvatarEditor = () => {
                                   onClick={() => handleCoupletSelect(couplet)}
                                   className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
                                     ${selectedCouplet === couplet
-                                      ? 'bg-red-50 text-red-600 ring-1 ring-red-500'
+                                      ? 'bg-red-50 ring-1 ring-red-500'
                                       : 'hover:bg-gray-50/80'
                                     }`}
                                 >
