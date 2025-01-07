@@ -38,7 +38,7 @@ const NewYearAvatarEditor = () => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 100,
-    height: 100,
+    aspect: 1,
     x: 0,
     y: 0
   });
@@ -168,7 +168,8 @@ const NewYearAvatarEditor = () => {
               x: (x / naturalWidth) * 100,
               y: (y / naturalHeight) * 100,
               width: (size / naturalWidth) * 100,
-              height: (size / naturalHeight) * 100
+              height: (size / naturalHeight) * 100,
+              aspect: 1
             });
             setShowCropModal(true);
           }

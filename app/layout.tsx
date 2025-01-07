@@ -19,7 +19,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh" className="h-full">
+    <html lang="zh">
+      <head>
+        <meta name="theme-color" content="#EF4444" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      </head>
       <body className="min-h-screen bg-gradient-to-b from-red-50 to-amber-50">{children}</body>
     </html>
   )
