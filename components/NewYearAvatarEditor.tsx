@@ -38,6 +38,7 @@ const NewYearAvatarEditor = () => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 100,
+    height: 100,
     x: 0,
     y: 0
   });
