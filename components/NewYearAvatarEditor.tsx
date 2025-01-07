@@ -773,59 +773,56 @@ const NewYearAvatarEditor = () => {
                     </div>
 
                     {/* 春联列表 */}
-                    <div className="relative mt-1">
-                      <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none
-                        [.no-overflow_&]:hidden" />
-                      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none
-                        [.no-overflow_&]:hidden" />
-                      
-                      {Object.entries(sampleCouplets).map(([key, couplets]) => (
-                        <div key={key} 
-                          className={`transition-all duration-200 
-                            ${selectedCategory === key ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 hidden'}`}
-                        >
-                          <div className="h-[225px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
-                            <div className="space-y-1.5 px-0.5">
-                              {couplets.map((couplet, index) => {
-                                const lines = couplet.split('，');
-                                return (
-                                  <button
-                                    key={index}
-                                    onClick={() => handleCoupletSelect(couplet)}
-                                    className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
-                                      ${selectedCouplet === couplet
-                                        ? 'bg-red-50 ring-1 ring-red-500'
-                                        : 'hover:bg-gray-50/80'
-                                      }`}
-                                  >
-                                    <div className="flex items-center justify-center gap-10">
-                                      {lines.map((line, i) => (
-                                        <p
-                                          key={i}
-                                          className={`text-sm transition-colors duration-200
-                                            ${selectedCouplet === couplet 
-                                              ? 'text-red-600 font-medium' 
-                                              : 'text-gray-500 group-hover:text-gray-800'
-                                            }`}
-                                        >
-                                          {line}
-                                        </p>
-                                      ))}
-                                    </div>
-
-                                    {/* 选中标记 */}
-                                    {selectedCouplet === couplet && (
-                                      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-transform duration-200">
-                                        <Check className="w-3.5 h-3.5 text-red-500" />
+                    <div className="relative">
+                      <div className="grid grid-cols-5 gap-2 max-h-[225px] overflow-y-auto pr-2 hide-scrollbar">
+                        {Object.entries(sampleCouplets).map(([key, couplets]) => (
+                          <div key={key} 
+                            className={`transition-all duration-200 
+                              ${selectedCategory === key ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 hidden'}`}
+                          >
+                            <div className="h-[225px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
+                              <div className="space-y-1.5 px-0.5">
+                                {couplets.map((couplet, index) => {
+                                  const lines = couplet.split('，');
+                                  return (
+                                    <button
+                                      key={index}
+                                      onClick={() => handleCoupletSelect(couplet)}
+                                      className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
+                                        ${selectedCouplet === couplet
+                                          ? 'bg-red-50 text-red-600 ring-1 ring-red-500'
+                                          : 'hover:bg-gray-50/80'
+                                        }`}
+                                    >
+                                      <div className="flex items-center justify-center gap-10">
+                                        {lines.map((line, i) => (
+                                          <p
+                                            key={i}
+                                            className={`text-sm transition-colors duration-200
+                                              ${selectedCouplet === couplet 
+                                                ? 'text-red-600 font-medium' 
+                                                : 'text-gray-500 group-hover:text-gray-800'
+                                              }`}
+                                          >
+                                            {line}
+                                          </p>
+                                        ))}
                                       </div>
-                                    )}
-                                  </button>
-                                );
-                              })}
+
+                                      {/* 选中标记 */}
+                                      {selectedCouplet === couplet && (
+                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-transform duration-200">
+                                          <Check className="w-3.5 h-3.5 text-red-500" />
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -882,7 +879,7 @@ const NewYearAvatarEditor = () => {
                                   onClick={() => handleCoupletSelect(couplet)}
                                   className={`group w-full relative px-3.5 py-2 rounded-lg transition-all
                                     ${selectedCouplet === couplet
-                                      ? 'bg-red-50 ring-1 ring-red-500'
+                                      ? 'bg-red-50 text-red-600 ring-1 ring-red-500'
                                       : 'hover:bg-gray-50/80'
                                     }`}
                                 >

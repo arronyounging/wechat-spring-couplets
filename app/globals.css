@@ -65,7 +65,7 @@
     --ring: 0 0% 83.1%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
@@ -123,12 +123,12 @@ button:active {
 
 /* 隐藏滚动条但保持可滚动 */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
 }
 
 /* 优化滚动条 */
@@ -143,4 +143,35 @@ button:active {
 }
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-red-300;
+}
+
+/* 春联列表样式 */
+.couplet-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  max-height: 225px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.couplet-item {
+  background-color: rgba(249, 250, 251, 0.7);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: rgb(75, 85, 99);
+  transition: all 0.2s;
+}
+
+.couplet-item:hover {
+  background-color: rgb(243, 244, 246);
+  color: rgb(17, 24, 39);
+}
+
+.couplet-item.selected {
+  background-color: rgb(254, 242, 242);
+  color: rgb(220, 38, 38);
+  ring-width: 1px;
+  ring-color: rgb(239, 68, 68);
 }
