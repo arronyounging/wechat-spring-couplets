@@ -38,7 +38,7 @@ const NewYearAvatarEditor = () => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 100,
-    aspect: 1,
+    height: 100,
     x: 0,
     y: 0
   });
@@ -168,8 +168,7 @@ const NewYearAvatarEditor = () => {
               x: (x / naturalWidth) * 100,
               y: (y / naturalHeight) * 100,
               width: (size / naturalWidth) * 100,
-              height: (size / naturalHeight) * 100,
-              aspect: 1
+              height: (size / naturalHeight) * 100
             });
             setShowCropModal(true);
           }
@@ -655,12 +654,12 @@ const NewYearAvatarEditor = () => {
                         <ReactCrop
                           crop={crop}
                           onChange={handleCropChange}
-                          aspect={1}
                           className="max-w-full max-h-full"
                           style={{
                             maxWidth: '100%',
                             maxHeight: '100%',
-                            margin: '0 auto'
+                            aspectRatio: '1',
+                            objectFit: 'contain'
                           }}
                         >
                           <img
